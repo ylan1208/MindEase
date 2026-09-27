@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="MindEase, căng thẳng học đường, tự kiểm tra căng thẳng, khảo sát ẩn danh, tâm lý học sinh">
+    <meta name="author" content="Nhóm nghiên cứu khoa học THCS Thanh Đa">
+    <title>MindEase - tự kiểm tra căng thẳng học đường</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef3f8;
+            margin: 0;
+            padding: 16px;
+            color: #222;
+        }
+
+        .khung {
+            max-width: 640px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+        }
+
+        h1 {
+            color: #1f3b73;
+            text-align: center;
+            font-size: 22px;
+            margin: 4px 0;
+        }
+
+        .phu {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .cauhoi {
+            margin: 14px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cauhoi p {
+            margin: 0 0 8px;
+            font-weight: bold;
+        }
+
+        .luachon {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .luachon label {
+            font-size: 13px;
+            background: #f0f4fa;
+            border: 1px solid #cdd8e8;
+            border-radius: 6px;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin: 18px 0 0;
+            padding: 12px;
+            background: #1f3b73;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #16305e;
+        }
+
+        #ketqua {
+            margin-top: 18px;
+            padding: 16px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        #ketqua h2 {
+            margin: 0 0 8px;
+        }
+
+        .chiso {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .luuy {
+            font-size: 13px;
+            color: #555;
+            margin-top: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="khung">
+        <h1>MindEase</h1>
+        <div class="phu">Ứng dụng tự kiểm tra mức độ căng thẳng học đường (khảo sát ẩn danh)</div>
+
+        <div id="danhSachCauHoi"></div>
+
+        <button onclick="xemKetQua()">Xem kết quả</button>
+
+        <div id="ketqua">
+            <h2 id="mucDo"></h2>
+            <div class="chiso" id="chiSo"></div>
+            <p id="loiKhuyen"></p>
+        </div>
+
+        <p class="luuy">
+            Lưu ý: Ứng dụng chỉ giúp em tự nhận biết, không thay thế tư vấn tâm lí.
+            Nếu thấy quá căng thẳng, hãy chia sẻ với thầy cô, cha mẹ hoặc chuyên viên tư vấn của trường.
+        </p>
+    </div>
+
+    <script>
+        /* ====== 1. DANH SÁCH 12 CÂU HỎI (thang đo B1 - B12) ====== */
+        var cauHoi = [
+            "B1. Em cảm thấy lo lắng trước các bài kiểm tra.",
+            "B2. Em cảm thấy áp lực về điểm số.",
+            "B3. Em khó tập trung khi học.",
+            "B4. Em cảm thấy mệt mỏi sau một ngày học.",
+            "B5. Em khó thư giãn dù đã hết giờ học.",
+            "B6. Em khó ngủ hoặc ngủ không ngon.",
+            "B7. Em căng thẳng khi mắc lỗi.",
+            "B8. Em hay suy nghĩ nhiều về những chuyện không vui.",
+            "B9. Em cảm thấy thiếu thời gian cho bản thân.",
+            "B10. Tâm trạng của em bị ảnh hưởng bởi việc học.",
+            "B11. Em dễ cáu gắt, bực bội.",
+            "B12. Em có biểu hiện cơ thể (đau đầu, đau bụng...) khi căng thẳng."
+        ];
+
+        /* Các mức trả lời (thang Likert 0 - 4) */
+        var mucTraLoi = [
+            "0 - Không bao giờ",
+            "1 - Hiếm khi",
+            "2 - Thỉnh thoảng",
+            "3 - Thường xuyên",
+            "4 - Gần như mỗi ngày"
+        ];
+
+        /* ====== 2. TẠO GIAO DIỆN CÂU HỎI TỰ ĐỘNG ====== */
+        var khungCH = document.getElementById("danhSachCauHoi");
+        for (var i = 0; i < cauHoi.length; i++) {
+            var div = document.createElement("div");
+            div.className = "cauhoi";
+            var html = "<p>" + cauHoi[i] + "</p><div class='luachon'>";
+            for (var m = 0; m <= 4; m++) {
+                html += "<label><input type='radio' name='cau" + i + "' value='" + m + "'> "
+                    + mucTraLoi[m] + "</label>";
+            }
+            html += "</div>";
+            div.innerHTML = html;
+            khungCH.appendChild(div);
+        }
+
+        /* ====== 3. TÍNH KẾT QUẢ KHI BẤM NÚT ====== */
+        function xemKetQua() {
+            var T = 0;        // tổng điểm thô
+            var daTraLoi = 0; // đếm số câu đã trả lời
+
+            // cộng điểm 12 câu
+            for (var i = 0; i < cauHoi.length; i++) {
+                var chon = document.querySelector("input[name='cau" + i + "']:checked");
+                if (chon) {
+                    T = T + parseInt(chon.value);
+                    daTraLoi++;
+                }
+            }
+
+            // yêu cầu trả lời đủ 12 câu
+            if (daTraLoi < 12) {
+                alert("Em hãy trả lời đủ 12 câu nhé! (Còn thiếu " + (12 - daTraLoi) + " câu)");
+                return;
+            }
+
+            // CÔNG THỨC CHÍNH: S = T / 48 * 100
+            var S = T / 48 * 100;
+            S = Math.round(S * 10) / 10; // làm tròn 1 chữ số thập phân
+
+            // so sánh với 2 ngưỡng của đề tài: 36,5 và 59,2
+            var muc, mau, khuyen;
+            if (S < 36.5) {
+                muc = "Mức THẤP";
+                mau = "#e6f4ea"; // nền xanh nhạt
+                khuyen = "Em đang khá ổn. Hãy tiếp tục giữ thói quen học tập, nghỉ ngơi điều độ và vận động nhẹ mỗi ngày.";
+            } else if (S <= 59.2) {
+                muc = "Mức TRUNG BÌNH";
+                mau = "#fff4e5"; // nền vàng nhạt
+                khuyen = "Em đang có chút căng thẳng. Hãy chia nhỏ mục tiêu học tập, sắp xếp thời gian hợp lí, hít thở sâu và dành thời gian cho sở thích.";
+            } else {
+                muc = "Mức CAO (cần quan tâm)";
+                mau = "#fdecea"; // nền đỏ nhạt
+                khuyen = "Em đang khá căng thẳng. Đừng giữ trong lòng - hãy chia sẻ với thầy cô, cha mẹ hoặc chuyên viên tư vấn tâm lí của trường để được hỗ trợ kịp thời.";
+            }
+
+            // hiển thị kết quả
+            var kq = document.getElementById("ketqua");
+            kq.style.display = "block";
+            kq.style.background = mau;
+            document.getElementById("mucDo").innerText = muc;
+            document.getElementById("chiSo").innerText = "Chỉ số căng thẳng của em: S = " + S + " / 100";
+            document.getElementById("loiKhuyen").innerText = khuyen;
+            kq.scrollIntoView({ behavior: "smooth" });
+        }
+    </script>
+</body>
+</html>
